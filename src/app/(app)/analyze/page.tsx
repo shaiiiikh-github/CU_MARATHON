@@ -39,17 +39,17 @@ export default function AnalyzePage() {
     const [selectedLang, setSelectedLang] = useState<LanguageKey>('python');
     const [code, setCode] = useState(LANGUAGES['python'].snippet);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    
+
     // API States
     const [analyzing, setAnalyzing] = useState(false);
     const [analyzed, setAnalyzed] = useState(false);
     const [scanResults, setScanResults] = useState<ScanResult[]>([]);
-    
+
     // Fix States
     const [showFix, setShowFix] = useState(false);
     const [isFixing, setIsFixing] = useState(false);
     const [fixedCode, setFixedCode] = useState("");
-    
+
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
     // --- PHASE 1: SCAN API CALL ---
@@ -57,15 +57,16 @@ export default function AnalyzePage() {
         setAnalyzing(true);
         setAnalyzed(false);
         setScanResults([]);
-        
+
         try {
-            const res = await fetch("http://127.0.0.1:8000/scan", {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+            const res = await fetch(`${apiUrl}/scan`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code })
             });
             const data = await res.json();
-            
+
             if (data.scan_results) {
                 setScanResults(data.scan_results);
             }
@@ -84,13 +85,14 @@ export default function AnalyzePage() {
         setFixedCode("");
 
         try {
-            const res = await fetch("http://127.0.0.1:8000/fix", {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+            const res = await fetch(`${apiUrl}/fix`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code, scan_results: scanResults })
             });
             const data = await res.json();
-            
+
             if (data.fixed_code) {
                 setFixedCode(data.fixed_code);
             } else {
@@ -159,7 +161,7 @@ export default function AnalyzePage() {
                             </AnimatePresence>
                         </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                         <button onClick={resetCode} className="p-2 text-secondary hover:text-foreground hover:bg-card/50 rounded-lg transition-colors">
                             <RotateCcw className="w-4 h-4" />
@@ -185,10 +187,10 @@ export default function AnalyzePage() {
                             {code.split('\n').map((line, i) => {
                                 const lineNum = i + 1;
                                 const flaggedIssue = scanResults.find(r => r.line_number === lineNum && r.label !== 1);
-                                
+
                                 let highlightClass = '';
                                 if (analyzed && flaggedIssue) {
-                                    highlightClass = flaggedIssue.label === 0 
+                                    highlightClass = flaggedIssue.label === 0
                                         ? 'bg-red-500/20 border-l-2 border-red-500'
                                         : 'bg-yellow-500/20 border-l-2 border-yellow-500';
                                 }
@@ -225,7 +227,7 @@ export default function AnalyzePage() {
                             <p className="font-extrabold text-xl text-foreground">Awaiting Analysis</p>
                         </motion.div>
                     )}
-                    
+
                     {analyzing && (
                         <motion.div key="analyzing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col items-center justify-center p-12 space-y-8">
                             <p className="text-sm font-bold text-primary animate-pulse tracking-widest uppercase">Scanning Neural Patterns</p>
@@ -246,7 +248,7 @@ export default function AnalyzePage() {
                                             </div>
                                         </motion.div>
                                     ))}
-                                    
+
                                     <button onClick={handleGenerateFix} className="w-full py-4 bg-foreground text-background rounded-xl font-bold hover:bg-gray-200 transition-all shadow-xl flex items-center justify-center gap-3">
                                         <Sparkles className="w-5 h-5" /> Generate Secure Fix
                                     </button>
@@ -268,7 +270,7 @@ export default function AnalyzePage() {
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md">
                         <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="w-full max-w-2xl glass rounded-3xl border border-primary/30 p-8 space-y-8 shadow-2xl">
                             <div className="flex justify-between items-center">
-                                <h2 className="text-2xl font-black flex gap-3 items-center"><Sparkles className="text-primary"/> AI Proposed Fix</h2>
+                                <h2 className="text-2xl font-black flex gap-3 items-center"><Sparkles className="text-primary" /> AI Proposed Fix</h2>
                                 <button onClick={() => setShowFix(false)} className="text-secondary hover:text-white"><AlertCircle className="rotate-45" /></button>
                             </div>
 
@@ -276,7 +278,7 @@ export default function AnalyzePage() {
                                 <div className="px-4 py-2 border-b border-safe/20 bg-safe/5 text-[10px] font-bold text-safe uppercase tracking-widest">Remediated Code</div>
                                 <div className="p-6 bg-[#0A0F1E] font-mono text-sm text-blue-300 overflow-auto max-h-[300px]">
                                     {isFixing ? (
-                                        <div className="flex items-center gap-3 animate-pulse text-secondary"><Sparkles className="w-4 h-4 animate-spin"/> Generating secure logic offline...</div>
+                                        <div className="flex items-center gap-3 animate-pulse text-secondary"><Sparkles className="w-4 h-4 animate-spin" /> Generating secure logic offline...</div>
                                     ) : (
                                         <pre><code>{fixedCode}</code></pre>
                                     )}
