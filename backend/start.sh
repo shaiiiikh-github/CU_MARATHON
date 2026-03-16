@@ -1,13 +1,13 @@
 #!/bin/bash
 
-echo "Starting Ollama server..."
+echo "Starting Ollama..."
 ollama serve &
 
-echo "Waiting for Ollama to start..."
+echo "Waiting for Ollama..."
 sleep 10
 
-echo "Pulling Qwen coder model..."
+echo "Pulling model..."
 ollama pull qwen2.5-coder:1.5b || true
 
-echo "Starting Flask backend..."
-gunicorn -b 0.0.0.0:7860 app:app --timeout 300
+echo "Starting API..."
+exec gunicorn -b 0.0.0.0:7860 app:app --timeout 300

@@ -9,20 +9,20 @@ RUN curl -fsSL https://ollama.com/install.sh | sh
 # Set working directory
 WORKDIR /app
 
-# Copy requirements first (better caching)
-COPY requirements.txt .
+# Copy backend requirements
+COPY backend/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy all project files
-COPY . .
+# Copy backend code
+COPY backend/ .
 
 # Make start script executable
 RUN chmod +x start.sh
 
-# Hugging Face uses port 7860
+# HuggingFace port
 EXPOSE 7860
 
-# Start the container
+# Start backend
 CMD ["./start.sh"]
