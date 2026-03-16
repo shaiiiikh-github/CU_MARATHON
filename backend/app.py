@@ -74,7 +74,7 @@ Vulnerable Lines to Fix:
 
     try:
         response = requests.post('http://localhost:11434/api/generate', json={
-            "model": "qwen2.5-coder:3b",
+            "model": "qwen2.5-coder:1.5b",
             "prompt": prompt,
             "stream": False,
             "options": {"temperature": 0.1} 
@@ -97,4 +97,4 @@ Vulnerable Lines to Fix:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8000)
+    app.run(debug=True, port=7860)
